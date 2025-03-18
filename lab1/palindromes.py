@@ -3,6 +3,7 @@ from singlyLinkedList import SinglyLinkedList
 
 
 def main() -> None:
+    # print("Is Palindrome" if (i := input("Provide string\n")) == i[::-1] else "Not Palindrome")
     s = input("Provide string to check if it is palindrome\n")
     if isPalindrome(s):
         print("It is a palindrome")
