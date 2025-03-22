@@ -34,7 +34,7 @@ class Stack(Generic[T]):
     def size(self) -> int:
         return self.__length
 
-    def toArray(self) -> List[T]:
+    def toArray(self):
         if self.size() > 0:
             return self.__array[:self.size()]
         return []

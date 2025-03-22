@@ -1,8 +1,8 @@
 from arrayStack import Stack
 
 priority = {
-    "+": 4,
     "-": 3,
+    "+": 3,
     "*": 2,
     "/": 2,
     "(": 1,
@@ -12,16 +12,18 @@ priority = {
 def main() -> None:
     infix_expression = input(
         "Provide infix expression\n")
+    infix_expression = infix_expression.strip()
     processed_expression = toPostfixWithCorrection(infix_expression)
     print("Processed expression: ", processed_expression)
     evaluated_expression = evaluatePostfix(processed_expression)
-    print("\nEvaluated expression: ", int(evaluated_expression) if int(evaluated_expression)==evaluated_expression else evaluated_expression)
+    print("Evaluated expression: ", int(evaluated_expression) if int(
+        evaluated_expression) == evaluated_expression else evaluated_expression)
 
 
 def toPostfixWithCorrection(e: str) -> str:
     tokens = e.split(" ")
-    operators: Stack[str] = Stack(len(e))
-    result: Stack = Stack(len(e))
+    operators = Stack[str](len(e))
+    result = Stack[str](len(e))
     for t in tokens:
         if t == "(":
             operators.push(t)
@@ -42,7 +44,7 @@ def toPostfixWithCorrection(e: str) -> str:
 
     while operators.size() > 0:
         result.push(operators.pop())
-        
+
     return " ".join(result.toArray())
 
 
@@ -50,8 +52,8 @@ def evaluatePostfix(e: str) -> float:
     tokens = e.split(" ")
     stack: Stack = Stack(len(e))
     for t in tokens:
-        if t.isdigit():
-            stack.push(t)
+        if t.lstrip('-').isdigit():
+            stack.push(int(t))
         else:
             num1 = float(stack.pop())
             num2 = float(stack.pop())

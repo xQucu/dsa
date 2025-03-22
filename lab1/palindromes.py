@@ -5,22 +5,23 @@ from singlyLinkedList import SinglyLinkedList
 def main() -> None:
     # print("Is Palindrome" if (i := input("Provide string\n")) == i[::-1] else "Not Palindrome")
     s = input("Provide string to check if it is palindrome\n")
+    s = ''.join(c for c in s.lower().strip() if c.isalnum())
     if isPalindrome(s):
         print("It is a palindrome")
     else:
-        print("It is not a palindrome")
+        print("It is NOT a palindrome")
 
 
 def isPalindrome(s: str) -> bool:
-    stack: Stack = Stack(len(s))
-    list: SinglyLinkedList = SinglyLinkedList()
+    stack = Stack[str](len(s))
+    singlyList: SinglyLinkedList = SinglyLinkedList()
 
     for v in s:
         stack.push(v)
-        list.add(v)
+        singlyList.add(v)
 
-    while list.size() > 0 and list.size() > 0:
-        if stack.pop() != list.remove():
+    while singlyList.size() > 0 and singlyList.size() > 0:
+        if stack.pop() != singlyList.remove():
             return False
 
     return True
