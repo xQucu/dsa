@@ -5,15 +5,30 @@ from collections import Counter
 
 def main() -> None:
     grayScaleArray = yodaThresholdAndReturnGrayScale()
+    grayScaleImg=Image.fromarray(grayScaleArray)
+    grayScaleImg.save("grayScaleYoda.jpg")
     enhanceContrast(grayScaleArray)
 
 
 def enhanceContrast(grayScaleArray: np.ndarray) -> None:
     levels = Counter(grayScaleArray.flatten())
-    levelsPercentage=
-    print(levels)
-    sum = levels.total()
+    total = levels.total()
+    cumulativeHistogram = np.zeros(256)
+    currentSum = 0
+    for i in range(256):
+        print(currentSum)
+        currentSum += levels[i]
+        cumulativeHistogram[i] = currentSum/total
 
+    mapping = np.floor(255 * cumulativeHistogram).astype(np.uint8)
+    
+    enhancedArray = np.zeros_like(grayScaleArray)
+    for i in range(grayScaleArray.shape[0]):
+        for j in range(grayScaleArray.shape[1]):
+            enhancedArray[i, j] = mapping[grayScaleArray[i, j]]
+    
+    enhancedImage = Image.fromarray(enhancedArray)
+    enhancedImage.save("enhancedContrast.jpg")
 
 
 def yodaThresholdAndReturnGrayScale() -> np.ndarray:
