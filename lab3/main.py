@@ -1,9 +1,10 @@
 import random
-import matplotlib.pyplot as plt
 import math
 from pprint import pprint
 
-plt.rcParams['toolbar'] = 'None'
+from drawing import draw_cities_and_connections
+
+
 CITIES = 5
 CITY_CONNECTIONS_CHANCE = 80
 PLOT_SIZE = 10
@@ -40,32 +41,11 @@ def generate_adjacency_matrix(xs: list[int], ys: list[int]) -> list[list[float]]
     return matrix
 
 
-def draw_cities_and_connections(xs: list[int], ys: list[int], matrix: list[list[float]]) -> None:
-    plt.figure(figsize=(PLOT_SIZE, PLOT_SIZE))
-    plt.scatter(xs, ys, color='blue')
-
-    for i in range(CITIES):
-        for j in range(i):
-            if matrix[i][j] != 0:
-                plt.plot([xs[i], xs[j]], [ys[i], ys[j]], 'k-', alpha=0.5)
-                mid_x = (xs[i] + xs[j]) / 2
-                mid_y = (ys[i] + ys[j]) / 2
-                plt.text(
-                    mid_x, mid_y, str(matrix[i][j]), color='red', fontsize=10, ha='center', va='center', bbox=dict(facecolor='white', edgecolor='none', pad=1))
-
-    for i in range(CITIES):
-        plt.text(xs[i], ys[i], str(i), color='blue', fontsize=12, ha='center',
-                 va='center', bbox=dict(facecolor='white', edgecolor='none', pad=1))
-
-    plt.grid(True)
-    plt.show()
-
-
 def main() -> None:
     xs, ys = generate_cities(CITIES)
     matrix = generate_adjacency_matrix(xs, ys)
 
-    draw_cities_and_connections(xs, ys, matrix)
+    draw_cities_and_connections(xs, ys, matrix, PLOT_SIZE, CITIES)
 
 
 if __name__ == "__main__":
