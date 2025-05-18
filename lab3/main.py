@@ -1,6 +1,8 @@
 import random
 import math
 from pprint import pprint
+from typing import Literal
+
 
 from matplotlib.pyplot import plot
 
@@ -43,7 +45,7 @@ def generate_adjacency_matrix(xs: list[int], ys: list[int]) -> list[list[int]]:
     return matrix
 
 
-def solveBFS(matrix: list[list[int]], source: int, verticesCount: int) -> tuple[int, int, list[int]]:
+def solveTSP(matrix: list[list[int]], source: int, verticesCount: int, mode: Literal["BFS", "DFS"]) -> tuple[int, int, list[int]]:
 
     current = source
     distance = 0
@@ -55,7 +57,7 @@ def solveBFS(matrix: list[list[int]], source: int, verticesCount: int) -> tuple[
     possibleSolutions: list[tuple[int, int, list[int]]] = []
 
     while len(q) > 0:
-        current, distance, path = q.pop(0)
+        current, distance, path = q.pop(0) if mode == "BFS" else q.pop()
         if (len(path) == verticesCount):
             possibleSolutions.append((current, distance, path))
             continue
@@ -84,10 +86,6 @@ def solveBFS(matrix: list[list[int]], source: int, verticesCount: int) -> tuple[
             curr, newDistance, path + [source])
 
     return possibleSolutions[smallestDistanceIdx]
-
-
-def solveDFS() -> None:
-    pass
 
 
 def solveMinSpanningTree() -> None:
@@ -125,7 +123,13 @@ def main() -> None:
     # startingCity = random.randint(0, CITIES - 1)
     startingCity = 0
 
-    _, distance, path = solveBFS(matrix, startingCity, CITIES)
+    _, distance, path = solveTSP(matrix, startingCity, CITIES, 'BFS')
+
+    print(f"Optimal path is of length {distance}")
+    pprint(path)
+    draw_optimal_path(xs, ys, PLOT_SIZE, path)
+
+    _, distance, path = solveTSP(matrix, startingCity, CITIES, 'DFS')
 
     print(f"Optimal path is of length {distance}")
     pprint(path)
