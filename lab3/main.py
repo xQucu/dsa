@@ -10,7 +10,7 @@ from drawing import draw_cities_and_connections, draw_optimal_path
 
 
 CITIES = 10
-CITY_CONNECTIONS_CHANCE = 80
+CITY_CONNECTIONS_CHANCE = 50
 PLOT_SIZE = 10
 MAX_POSITION = 100
 MIN_POSITION = 0
@@ -88,16 +88,72 @@ def solveTSP(matrix: list[list[int]], source: int, verticesCount: int, mode: Lit
     return possibleSolutions[smallestDistanceIdx]
 
 
-def solveMinSpanningTree() -> None:
+def solveTSPMinSpanningTree() -> None:
     pass
 
 
-def solveGreedy() -> None:
+def solveTSPGreedy() -> None:
     pass
 
 
-def shortestPathBetweenTwoVertices(matrix: list[list[int]], source: int, dest: int, verticesCount: int) -> None:
-    pass
+def reconstructPathAfterBidirectionalSearch(prevFromSource, prevFromDest, mutual) -> list[int]:
+    current = prevFromDest[mutual]
+    out = []
+
+    while prevFromDest[current] != -1:
+        out.insert(0, current)
+        current = prevFromDest[current]
+    out.insert(0, current)
+
+    current = mutual
+    while prevFromSource[current] != -1:
+        out.append(current)
+        current = prevFromSource[current]
+
+    out.append(current)
+    out.reverse()
+    return out
+
+
+def shortestPathBetweenTwoVertices(matrix: list[list[int]], source: int, dest: int, verticesCount: int) -> list[int]:
+    prevFromSource = [-1 for _ in range(verticesCount)]
+    seenFromSource = [source]
+    qSource = []
+    qSource.append(source)
+
+    prevFromDest = [-1 for _ in range(verticesCount)]
+    seenFromDest = [source]
+    qDest = []
+    qDest.append(dest)
+
+    while len(qSource) > 0 or len(qDest) > 0:
+        if len(qSource) > 0:
+            current = qSource.pop(0)
+            if current == dest:
+                break
+            for idx in range(verticesCount):
+                if idx in seenFromSource or matrix[idx][current] == 0:
+                    continue
+                seenFromSource.append(idx)
+                prevFromSource[idx] = current
+                qSource.append(idx)
+                if idx in seenFromDest:
+                    return reconstructPathAfterBidirectionalSearch(prevFromSource, prevFromDest, idx)
+
+        if len(qDest) > 0:
+            current = qDest.pop(0)
+            if current == source:
+                break
+            for idx in range(verticesCount):
+                if idx in seenFromDest or matrix[idx][current] == 0:
+                    continue
+                seenFromDest.append(idx)
+                prevFromDest[idx] = current
+                qDest.append(idx)
+                if idx in seenFromSource:
+                    return reconstructPathAfterBidirectionalSearch(prevFromSource, prevFromDest, idx)
+
+    return []
 
 
 def main() -> None:
@@ -105,17 +161,29 @@ def main() -> None:
     # matrix: list[list[int]] = generate_adjacency_matrix(xs, ys)
     xs = [66, 53, 33, 38, 39, -41, -96, -11, 87, -50]
     ys = [92, -65, -3, -50, 78, 33, -29, -94, 58, -59]
+    # matrix = [
+    #     [0, 158, 101, 145, 30, 122, 202, 201, 40, 0],
+    #     [158, 0, 65, 21, 144, 136, 153, 70, 128, 103],
+    #     [101, 65, 0, 0, 81, 82, 0, 101, 81, 100],
+    #     [145, 21, 0, 0, 128, 115, 136, 0, 0, 88],
+    #     [30, 144, 81, 128, 0, 92, 0, 179, 52, 163],
+    #     [122, 136, 82, 115, 92, 0, 83, 0, 130, 92],
+    #     [202, 153, 0, 136, 0, 83, 0, 107, 0, 55],
+    #     [201, 70, 101, 0, 179, 0, 107, 0, 181, 52],
+    #     [40, 128, 81, 0, 52, 130, 0, 181, 0, 180],
+    #     [0, 103, 100, 88, 163, 92, 55, 52, 180, 0]
+    # ]
     matrix = [
-        [0, 158, 101, 145, 30, 122, 202, 201, 40, 0],
-        [158, 0, 65, 21, 144, 136, 153, 70, 128, 103],
-        [101, 65, 0, 0, 81, 82, 0, 101, 81, 100],
-        [145, 21, 0, 0, 128, 115, 136, 0, 0, 88],
-        [30, 144, 81, 128, 0, 92, 0, 179, 52, 163],
-        [122, 136, 82, 115, 92, 0, 83, 0, 130, 92],
-        [202, 153, 0, 136, 0, 83, 0, 107, 0, 55],
-        [201, 70, 101, 0, 179, 0, 107, 0, 181, 52],
-        [40, 128, 81, 0, 52, 130, 0, 181, 0, 180],
-        [0, 103, 100, 88, 163, 92, 55, 52, 180, 0]
+        [0, 0, 0, 0, 30, 0, 0, 0, 40, 0],
+        [0, 0, 0, 21, 0, 0, 0, 15, 128, 0],
+        [0, 0, 0, 47, 81, 82, 0, 0, 0, 0],
+        [0, 21, 47, 0, 0, 0, 0, 0, 0, 0],
+        [30, 0, 81, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 82, 0, 0, 0, 77, 0, 0, 0],
+        [0, 0, 0, 0, 0, 77, 0, 0, 0, 44],
+        [0, 15, 0, 0, 0, 0, 0, 0, 0, 25],
+        [40, 128, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 44, 25, 0, 0]
     ]
 
     draw_cities_and_connections(xs, ys, matrix, PLOT_SIZE, CITIES)
@@ -123,20 +191,23 @@ def main() -> None:
     # startingCity = random.randint(0, CITIES - 1)
     startingCity = 0
 
-    _, distance, path = solveTSP(matrix, startingCity, CITIES, 'BFS')
+    # _, distance, path = solveTSP(matrix, startingCity, CITIES, 'BFS')
+    # print(f"Optimal path is of length {distance}")
+    # pprint(path)
+    # draw_optimal_path(xs, ys, PLOT_SIZE, path)
 
-    print(f"Optimal path is of length {distance}")
-    pprint(path)
-    draw_optimal_path(xs, ys, PLOT_SIZE, path)
+    # _, distance, path = solveTSP(matrix, startingCity, CITIES, 'DFS')
+    # print(f"Optimal path is of length {distance}")
+    # pprint(path)
+    # draw_optimal_path(xs, ys, PLOT_SIZE, path)
 
-    _, distance, path = solveTSP(matrix, startingCity, CITIES, 'DFS')
-
-    print(f"Optimal path is of length {distance}")
-    pprint(path)
-    draw_optimal_path(xs, ys, PLOT_SIZE, path)
     # destCity = random.randint(0, CITIES - 1)
+    destCity = 6
 
-    # shortestPathBetweenTwoVertices(matrix, startingCity, destCity, CITIES)
+    path = shortestPathBetweenTwoVertices(
+        matrix, startingCity, destCity, CITIES)
+    pprint(path)
+    draw_optimal_path(xs,ys,PLOT_SIZE, path)
 
 
 if __name__ == "__main__":
