@@ -13,7 +13,7 @@ CITIES = 10
 CITY_CONNECTIONS_CHANCE = 50
 PLOT_SIZE = 10
 MAX_POSITION = 100
-MIN_POSITION = 0
+MIN_POSITION = -100
 
 
 def generate_cities(n: int) -> tuple[list[int], list[int]]:
@@ -89,6 +89,7 @@ def solveTSP(matrix: list[list[int]], source: int, verticesCount: int, mode: Lit
 
 
 def solveTSPMinSpanningTree() -> list[int]:
+
     return []
 
 
@@ -217,6 +218,11 @@ def main() -> None:
 
     # startingCity = random.randint(0, CITIES - 1)
     startingCity = 0
+    print(f"Starting city: {startingCity}")
+
+    # destCity = random.randint(0, CITIES - 1)
+    destCity = 6
+    print(f"Destination city: {destCity}")
 
     # _, distance, path = solveTSP(matrix, startingCity, CITIES, 'BFS')
     # print(f"Optimal path is of length {distance}")
@@ -232,9 +238,6 @@ def main() -> None:
     print(f"Optimal path is of length {distance}")
     pprint(path)
     draw_optimal_path(xs, ys, PLOT_SIZE, path)
-
-    # destCity = random.randint(0, CITIES - 1)
-    destCity = 6
 
     # path = shortestPathBetweenTwoVertices(
     #     matrix, startingCity, destCity, CITIES)
