@@ -6,7 +6,8 @@ from typing import Literal
 
 from matplotlib.pyplot import plot
 
-from drawing import draw_cities_and_connections, draw_optimal_path
+from drawing import *
+from mst import approximate_TSP_MST_DFS
 
 
 CITIES = 10
@@ -86,11 +87,6 @@ def solveTSP(matrix: list[list[int]], source: int, verticesCount: int, mode: Lit
             curr, newDistance, path + [source])
 
     return possibleSolutions[smallestDistanceIdx]
-
-
-def solveTSPMinSpanningTree() -> list[int]:
-
-    return []
 
 
 def solveTSPGreedy(matrix: list[list[int]], source: int, verticesCount: int,) -> tuple[int, list[int]]:
@@ -214,7 +210,7 @@ def main() -> None:
     #     [0, 0, 0, 0, 0, 0, 44, 25, 0, 0]
     # ]
 
-    draw_cities_and_connections(xs, ys, matrix, PLOT_SIZE, CITIES)
+    draw_cities_and_connections_from_matrix(xs, ys, matrix, PLOT_SIZE, CITIES)
 
     # startingCity = random.randint(0, CITIES - 1)
     startingCity = 0
@@ -234,10 +230,16 @@ def main() -> None:
     # pprint(path)
     # draw_optimal_path(xs, ys, PLOT_SIZE, path)
 
-    distance, path = solveTSPGreedy(matrix, startingCity, CITIES)
+    distance, path = approximate_TSP_MST_DFS(
+        matrix, xs, ys, CITIES, startingCity)
     print(f"Optimal path is of length {distance}")
     pprint(path)
     draw_optimal_path(xs, ys, PLOT_SIZE, path)
+
+    # distance, path = solveTSPGreedy(matrix, startingCity, CITIES)
+    # print(f"Optimal path is of length {distance}")
+    # pprint(path)
+    # draw_optimal_path(xs, ys, PLOT_SIZE, path)
 
     # path = shortestPathBetweenTwoVertices(
     #     matrix, startingCity, destCity, CITIES)
