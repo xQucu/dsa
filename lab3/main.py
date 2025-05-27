@@ -11,7 +11,7 @@ from mst import approximate_TSP_MST_DFS
 
 
 CITIES = 10
-CITY_CONNECTIONS_CHANCE = 50
+CITY_CONNECTIONS_CHANCE = 80
 PLOT_SIZE = 10
 MAX_POSITION = 100
 MIN_POSITION = -100
@@ -40,8 +40,6 @@ def generate_adjacency_matrix(xs: list[int], ys: list[int]) -> list[list[int]]:
                 else:
                     matrix[c1][c2] = int(
                         math.sqrt((xs[c1]-xs[c2])**2+(ys[c1]-ys[c2])**2))
-
-    pprint(matrix)
 
     return matrix
 
@@ -86,10 +84,13 @@ def solveTSP(matrix: list[list[int]], source: int, verticesCount: int, mode: Lit
         possibleSolutions[i] = (
             curr, newDistance, path + [source])
 
+    if len(possibleSolutions) == 0 or len(possibleSolutions[smallestDistanceIdx][2]) < verticesCount+1:
+        return (0, 0, [])
+
     return possibleSolutions[smallestDistanceIdx]
 
 
-def solveTSPGreedy(matrix: list[list[int]], source: int, verticesCount: int,) -> tuple[int, list[int]]:
+def approximateTSPGreedy(matrix: list[list[int]], source: int, verticesCount: int) -> tuple[int, list[int]]:
     current = source
     totalDistance = 0
     path = [source]
@@ -111,6 +112,9 @@ def solveTSPGreedy(matrix: list[list[int]], source: int, verticesCount: int,) ->
             if (minDistance == 0 or minDistance > distance) and idx not in path:
                 minDistance = distance
                 idxForMinDistance = idx
+
+        if idxForMinDistance == -1:
+            return (0, [])
 
         path.append(idxForMinDistance)
         totalDistance += minDistance
@@ -139,7 +143,7 @@ def reconstructPathAfterBidirectionalSearch(prevFromSource, prevFromDest, mutual
     return out
 
 
-def shortestPathBetweenTwoVertices(matrix: list[list[int]], source: int, dest: int, verticesCount: int) -> list[int]:
+def indirectPathBetweenTwoVertices(matrix: list[list[int]], source: int, dest: int, verticesCount: int) -> list[int]:
     prevFromSource = [-1 for _ in range(verticesCount)]
     seenFromSource = [source]
     qSource = []
@@ -181,22 +185,20 @@ def shortestPathBetweenTwoVertices(matrix: list[list[int]], source: int, dest: i
 
 
 def main() -> None:
-    # xs, ys = generate_cities(CITIES)
-    # matrix: list[list[int]] = generate_adjacency_matrix(xs, ys)
-    xs = [66, 53, 33, 38, 39, -41, -96, -11, 87, -50]
-    ys = [92, -65, -3, -50, 78, 33, -29, -94, 58, -59]
-    matrix = [
-        [0, 158, 101, 145, 30, 122, 202, 201, 40, 0],
-        [158, 0, 65, 21, 144, 136, 153, 70, 128, 103],
-        [101, 65, 0, 0, 81, 82, 0, 101, 81, 100],
-        [145, 21, 0, 0, 128, 115, 136, 0, 0, 88],
-        [30, 144, 81, 128, 0, 92, 0, 179, 52, 163],
-        [122, 136, 82, 115, 92, 0, 83, 0, 130, 92],
-        [202, 153, 0, 136, 0, 83, 0, 107, 0, 55],
-        [201, 70, 101, 0, 179, 0, 107, 0, 181, 52],
-        [40, 128, 81, 0, 52, 130, 0, 181, 0, 180],
-        [0, 103, 100, 88, 163, 92, 55, 52, 180, 0]
-    ]
+    # xs = [66, 53, 33, 38, 39, -41, -96, -11, 87, -50]
+    # ys = [92, -65, -3, -50, 78, 33, -29, -94, 58, -59]
+    # matrix = [
+    #     [0, 158, 101, 145, 30, 122, 202, 201, 40, 0],
+    #     [158, 0, 65, 21, 144, 136, 153, 70, 128, 103],
+    #     [101, 65, 0, 0, 81, 82, 0, 101, 81, 100],
+    #     [145, 21, 0, 0, 128, 115, 136, 0, 0, 88],
+    #     [30, 144, 81, 128, 0, 92, 0, 179, 52, 163],
+    #     [122, 136, 82, 115, 92, 0, 83, 0, 130, 92],
+    #     [202, 153, 0, 136, 0, 83, 0, 107, 0, 55],
+    #     [201, 70, 101, 0, 179, 0, 107, 0, 181, 52],
+    #     [40, 128, 81, 0, 52, 130, 0, 181, 0, 180],
+    #     [0, 103, 100, 88, 163, 92, 55, 52, 180, 0]
+    # ]
     # matrix = [
     #     [0, 0, 0, 0, 30, 0, 0, 0, 40, 0],
     #     [0, 0, 0, 21, 0, 0, 0, 15, 128, 0],
@@ -210,41 +212,47 @@ def main() -> None:
     #     [0, 0, 0, 0, 0, 0, 44, 25, 0, 0]
     # ]
 
-    draw_cities_and_connections_from_matrix(xs, ys, matrix, PLOT_SIZE, CITIES)
+    xs, ys = generate_cities(CITIES)
+    matrix: list[list[int]] = generate_adjacency_matrix(xs, ys)
 
-    # startingCity = random.randint(0, CITIES - 1)
-    startingCity = 0
+    draw_cities_and_connections_from_matrix(
+        xs, ys, matrix, PLOT_SIZE, CITIES, "Cities with connections")
+
+    # startingCity = 0
+    # destCity = 6
+
+    startingCity = random.randint(0, CITIES - 1)
+    destCity = random.randint(0, CITIES - 1)
     print(f"Starting city: {startingCity}")
-
-    # destCity = random.randint(0, CITIES - 1)
-    destCity = 6
     print(f"Destination city: {destCity}")
 
-    # _, distance, path = solveTSP(matrix, startingCity, CITIES, 'BFS')
-    # print(f"Optimal path is of length {distance}")
-    # pprint(path)
-    # draw_optimal_path(xs, ys, PLOT_SIZE, path)
+    _, distance, path = solveTSP(matrix, startingCity, CITIES, 'BFS')
+    print(f"Optimal path from BFS is of length {distance}")
+    pprint(path)
+    draw_optimal_path(xs, ys, PLOT_SIZE, path, "Optimal path from BFS")
 
-    # _, distance, path = solveTSP(matrix, startingCity, CITIES, 'DFS')
-    # print(f"Optimal path is of length {distance}")
-    # pprint(path)
-    # draw_optimal_path(xs, ys, PLOT_SIZE, path)
+    _, distance, path = solveTSP(matrix, startingCity, CITIES, 'DFS')
+    print(f"Optimal path from DFS is of length {distance}")
+    pprint(path)
+    draw_optimal_path(xs, ys, PLOT_SIZE, path, "Optimal path from DFS")
 
     distance, path = approximate_TSP_MST_DFS(
-        matrix, xs, ys, CITIES, startingCity)
-    print(f"Optimal path is of length {distance}")
+        matrix, startingCity)
+    print(f"Optimal path from MST is of length {distance}")
     pprint(path)
-    draw_optimal_path(xs, ys, PLOT_SIZE, path)
+    draw_optimal_path(xs, ys, PLOT_SIZE, path, "Optimal path from MST")
 
-    # distance, path = solveTSPGreedy(matrix, startingCity, CITIES)
-    # print(f"Optimal path is of length {distance}")
-    # pprint(path)
-    # draw_optimal_path(xs, ys, PLOT_SIZE, path)
+    distance, path = approximateTSPGreedy(matrix, startingCity, CITIES)
+    print(f"Optimal path from greedy is of length {distance}")
+    pprint(path)
+    draw_optimal_path(xs, ys, PLOT_SIZE, path, "Optimal path from greedy")
 
-    # path = shortestPathBetweenTwoVertices(
-    #     matrix, startingCity, destCity, CITIES)
-    # pprint(path)
-    # draw_optimal_path(xs, ys, PLOT_SIZE, path)
+    path = indirectPathBetweenTwoVertices(
+        matrix, startingCity, destCity, CITIES)
+    print("indirect path between two cities")
+    pprint(path)
+    draw_optimal_path(xs, ys, PLOT_SIZE, path,
+                      "indirect path between two cities")
 
 
 if __name__ == "__main__":

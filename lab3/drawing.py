@@ -1,11 +1,11 @@
 import matplotlib.pyplot as plt
 
 
-def draw_cities_and_connections_from_matrix(xs: list[int], ys: list[int], matrix: list[list[int]], plotSize: int, pointsCount: int) -> None:
+def draw_cities_and_connections_from_matrix(xs: list[int], ys: list[int], matrix: list[list[int]], plotSize: int, pointsCount: int, title: str) -> None:
 
     plt.rcParams['toolbar'] = 'None'
     plt.figure(figsize=(plotSize, plotSize))
-    plt.title("connections and cities")
+    plt.title(title)
     plt.scatter(xs, ys, color='blue')
 
     for i in range(pointsCount):
@@ -25,24 +25,20 @@ def draw_cities_and_connections_from_matrix(xs: list[int], ys: list[int], matrix
     plt.show()
 
 
-def draw_cities_and_connections_from_list(xs: list[int], ys: list[int], adj_list: list[list[tuple[int, int]]], plotSize: int) -> None:
+def draw_cities_and_connections_from_list(xs: list[int], ys: list[int], adj_list: list[list[tuple[int, int]]], plotSize: int, title: str) -> None:
 
     plt.rcParams['toolbar'] = 'None'
     plt.figure(figsize=(plotSize, plotSize))
-    plt.title("connections and cities")
+    plt.title(title)
     plt.scatter(xs, ys, color='blue')
 
-    # Keep track of drawn edges to avoid duplicates
     drawn_edges = set()
 
-    # Draw connections
     for city1, neighbors in enumerate(adj_list):
         for neighbor_info in neighbors:
-            city2, cost = neighbor_info  # Now unpacking a tuple
-            # Create an edge identifier (using sorted tuple to handle both directions)
+            city2, cost = neighbor_info  
             edge = tuple(sorted([city1, city2]))
 
-            # Only draw if we haven't drawn this edge yet
             if edge not in drawn_edges:
                 plt.plot([xs[city1], xs[city2]], [
                          ys[city1], ys[city2]], 'k-', alpha=0.5)
@@ -52,7 +48,6 @@ def draw_cities_and_connections_from_list(xs: list[int], ys: list[int], adj_list
                     mid_x, mid_y, str(cost), color='red', fontsize=10, ha='center', va='center',
                     bbox=dict(facecolor='white', edgecolor='none', pad=1))
 
-                # Mark this edge as drawn
                 drawn_edges.add(edge)
 
     for i in range(len(xs)):
@@ -63,10 +58,10 @@ def draw_cities_and_connections_from_list(xs: list[int], ys: list[int], adj_list
     plt.show()
 
 
-def draw_optimal_path(xs: list[int], ys: list[int], plotSize: int, path: list[int]) -> None:
+def draw_optimal_path(xs: list[int], ys: list[int], plotSize: int, path: list[int], title) -> None:
     plt.rcParams['toolbar'] = 'None'
     plt.figure(figsize=(plotSize, plotSize))
-    plt.title("Optimal path")
+    plt.title(title)
     plt.scatter(xs, ys, color='blue')
 
     for i in range(len(path) - 1):

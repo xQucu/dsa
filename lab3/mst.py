@@ -1,6 +1,3 @@
-from drawing import draw_cities_and_connections_from_list
-
-
 def list_edges(matrix):
     edgesList: list[tuple[int, int, int]] = []
 
@@ -24,7 +21,7 @@ def create_MST(matrix: list[list[int]]):
 
     colors: list[int] = [0 for _ in range(len(matrix))]
     colorCounter = 0
-    tmp = 0
+    newColor = 0
     verticesConnected = 0
 
     while len(edgesList) > 0 and not (verticesConnected == len(matrix) and colorCounter == 1):
@@ -32,9 +29,9 @@ def create_MST(matrix: list[list[int]]):
         (node1, node2, cost) = edgesList.pop(0)
         if colors[node1] == 0 and colors[node2] == 0:
             colorCounter += 1
-            tmp += 1
-            colors[node1] = tmp
-            colors[node2] = tmp
+            newColor += 1
+            colors[node1] = newColor
+            colors[node2] = newColor
             adjacencyList[node1].append((node2, cost))
             adjacencyList[node2].append((node1, cost))
             verticesConnected += 2
@@ -66,7 +63,7 @@ def create_MST(matrix: list[list[int]]):
     return adjacencyList
 
 
-def DFS_traversal_on_adj_list(adj_list: list[list[tuple[int, int]]], verticesCount: int, source: int) -> tuple[int, list[int]]:
+def DFS_traversal_on_adj_list(adj_list: list[list[tuple[int, int]]], source: int, matrix: list[list[int]]) -> tuple[int, list[int]]:
     route: list[int] = []
     q = [source]
 
@@ -76,26 +73,20 @@ def DFS_traversal_on_adj_list(adj_list: list[list[tuple[int, int]]], verticesCou
             continue
         route.append(current)
         connections = adj_list[current]
-        for node, cost in connections:
+        for node, _ in connections:
             q.append(node)
 
     route.append(source)
 
     totalCost = 0
     for i in range(len(route)-1):
-        connections = adj_list[route[i]]
-        currentCost = 0
-        for c in connections:
-            if c[0] == route[i+1]:
-                currentCost += c[1]
-        totalCost += currentCost
+        totalCost += matrix[route[i]][route[i+1]]
     return totalCost, route
 
 
-def approximate_TSP_MST_DFS(matrix: list[list[int]], xs, ys, verticesCount, source: int) -> tuple[int, list[int]]:
-    adjacency_list = create_MST(matrix)
+def approximate_TSP_MST_DFS(matrix: list[list[int]], source: int) -> tuple[int, list[int]]:
+    adjacency_list_MST = create_MST(matrix)
 
-    # show MST
     # draw_cities_and_connections_from_list(xs, ys, adjacency_list, 7)
 
-    return DFS_traversal_on_adj_list(adjacency_list, verticesCount, source)
+    return DFS_traversal_on_adj_list(adjacency_list_MST, source, matrix)
