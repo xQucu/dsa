@@ -1,0 +1,1 @@
+this is a sample txt with om misspelled weirds to che the correction ability of the program it should be abel to handel maney errors in a paragram and sil make ens aft it runs even if the mistakes are big or ismal the syst must try its best to fix them correctly otherwise it il not be useful for deny reel alias in rel orl scenarios 

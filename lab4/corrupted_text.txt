@@ -1,0 +1,1 @@
+thiis is a smple txt with som missspelled wirds to chek the corection abiliti of the progrm it shuld be abel to handel maney errors in a paragraf and stil make sens aftr it runs even if the mistaks are big or smal the systm must try its best to fix them corectly othrwise it wil not be usefull for eny reel aplicashun in rel worl senarios
