@@ -123,23 +123,53 @@ def correct_word(w):
             word = line.strip()
             if word == w:
                 return word
-    # costsL = []
-    # costsH = []
+    costsL = []
+    costsH = []
     costsI = []
     with open("words_alpha.txt", "r") as f:
         for word in f:
             word = word.strip()
-            # costsL.append((word, improved_levenshtein_distance(w, word)))
-            # if len(word) == len(w):
-            #     costsH.append((word, improved_hamming_distance(w, word)))
+            costsL.append((word, improved_levenshtein_distance(w, word)))
+            if len(word) == len(w):
+                costsH.append((word, improved_hamming_distance(w, word)))
             costsI.append((word, indel_distance(w, word)))
 
-    # costsL.sort(key=lambda x: x[1])
-    # costsH.sort(key=lambda x: x[1])
-    costsI.sort(key=lambda x: x[1])
+    bestL = min(costsL, key=lambda x: x[1])
+    bestH = min(costsH, key=lambda x: x[1]) if costsH else (None, float('inf'))
+    bestI = min(costsI, key=lambda x: x[1])
 
-    # print((costsL[0], costsH[0], costsI[0]))
-    return costsI[0][0]
+    best = min([bestL, bestH, bestI], key=lambda x: x[1])
+    return best[0]
+
+
+def improved_correct_word(w):
+    THRESHOLD = 5
+    with open("words_alpha.txt", "r") as f:
+        for line in f:
+            word = line.strip()
+            if word == w:
+                return word
+    costsL = []
+    costsH = []
+    costsI = []
+
+    wLen = len(w)
+    with open("words_alpha.txt", "r") as f:
+        for word in f:
+            word = word.strip()
+            if abs(wLen-len(word)) > THRESHOLD:
+                continue
+            costsL.append((word, improved_levenshtein_distance(w, word)))
+            if len(word) == len(w):
+                costsH.append((word, improved_hamming_distance(w, word)))
+            costsI.append((word, indel_distance(w, word)))
+
+    bestL = min(costsL, key=lambda x: x[1])
+    bestH = min(costsH, key=lambda x: x[1]) if costsH else (None, float('inf'))
+    bestI = min(costsI, key=lambda x: x[1])
+
+    best = min([bestL, bestH, bestI], key=lambda x: x[1])
+    return best[0]
 
 
 def correct_text():
@@ -151,5 +181,3 @@ def correct_text():
                     correctedWord = correct_word(word)
                     correctedFile.write(correctedWord + " ")
                 correctedFile.write("\n")
-
-

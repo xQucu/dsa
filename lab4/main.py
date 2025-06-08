@@ -25,10 +25,14 @@ def main():
     dist = improved_hamming_distance(w1, w2)
     print(f"improved_hamming_distance is {dist}")
 
-    correctedWord = correct_word(wordToCorrect)
+    # correctedWord = correct_word(wordToCorrect)
+    # print(f"Original word: {wordToCorrect},\nCorrected word: {correctedWord}")
+
+    correctedWord = improved_correct_word(wordToCorrect)
     print(f"Original word: {wordToCorrect},\nCorrected word: {correctedWord}")
 
     codebook, encoded = huffman_coding(phraseForHuffman)
+    print(f'compression ratio: {len(encoded) / (len(phraseForHuffman) * 8)}')
     print(codebook)
     print(encoded)
 
