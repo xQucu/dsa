@@ -8,6 +8,8 @@ class MinHeap():
         self._heapifyUp(self.length)
         self.length += 1
 
+    # def len()
+
     def delete(self):
         if self.length == 0:
             raise IndexError("Can't delete from empty heap")
@@ -68,11 +70,49 @@ class MinHeap():
         return (idx * 2 + 2)
 
 
-# def huffman_coding(text: str):
-#     counter = {}
-#     for c in text:
-#         if c in counter:
-#             counter[c] += 1
-#         else:
-#             counter[c] = 1
-#             heap = MinHeap()
+class Node():
+    def __init__(self, priority, val):
+        self.priority = priority
+        self.val = val
+        self.left = None
+        self.right = None
+
+
+def build_codes(node, prefix, codebook):
+    if node is None:
+        return
+    if node.val is not None:
+        codebook[node.val] = prefix
+        return
+    build_codes(node.left, prefix + "0", codebook)
+    build_codes(node.right, prefix + "1", codebook)
+
+
+def huffman_coding(text: str):
+    occurrences = {}
+    for c in text:
+        if c in occurrences:
+            occurrences[c] += 1
+        else:
+            occurrences[c] = 1
+
+    heap = MinHeap()
+
+    for char, freq in occurrences.items():
+        heap.insert((freq, Node(freq, char)))
+
+    while heap.length > 1:
+        freq1, leftNode = heap.delete()
+        freq2, rightNode = heap.delete()
+        merged = Node(freq1 + freq2, None)
+        merged.left = leftNode
+        merged.right = rightNode
+        heap.insert((merged.priority, merged))
+
+    root = heap.delete()[1]
+    codebook = {}
+    build_codes(root, "", codebook)
+
+    encoded = "".join(codebook[c] for c in text)
+
+    return codebook, encoded

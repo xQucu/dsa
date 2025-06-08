@@ -8,6 +8,8 @@ def main():
 
     wordToCorrect = "thiis"
 
+    phraseForHuffman = "I love data structures"
+
     dist = levenshtein_distance(w1, w2)
     print(f"levenshtein_distance is {dist}")
 
@@ -25,6 +27,10 @@ def main():
 
     correctedWord = correct_word(wordToCorrect)
     print(f"Original word: {wordToCorrect},\nCorrected word: {correctedWord}")
+
+    codebook, encoded = huffman_coding(phraseForHuffman)
+    print(codebook)
+    print(encoded)
 
 
 if __name__ == "__main__":
