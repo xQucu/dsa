@@ -8,8 +8,6 @@ class MinHeap():
         self._heapifyUp(self.length)
         self.length += 1
 
-    # def len()
-
     def delete(self):
         if self.length == 0:
             raise IndexError("Can't delete from empty heap")
@@ -109,10 +107,10 @@ def huffman_coding(text: str):
         merged.right = rightNode
         heap.insert((merged.priority, merged))
 
-    root = heap.delete()[1]
-    codebook = {}
-    build_codes(root, "", codebook)
+    finalNode = heap.delete()[1]
+    codes = {}
+    build_codes(finalNode, "", codes)
 
-    encoded = "".join(codebook[c] for c in text)
+    encoded = "".join(codes[c] for c in text)
 
-    return codebook, encoded
+    return codes, encoded

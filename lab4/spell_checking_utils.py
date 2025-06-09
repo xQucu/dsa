@@ -24,24 +24,29 @@ def keyboard_char_distance(c1: str, c2: str) -> float:
     if coord1 is None or coord2 is None:
         return 1
 
-    x = (coord1[0] - coord2[0]) ** 2 + (coord1[1] - coord2[1]) ** 2
-    if x <= 2:
+    squaredDistance = (coord1[0] - coord2[0]) ** 2 + (coord1[1] - coord2[1]) ** 2
+    if squaredDistance <= 2:
         return 0.1
-    elif x <= 4:
+    elif squaredDistance <= 4:
         return 0.6
     else:
         return 1
+
+
+def createCalculationsTable(len1, len2):
+    table = [[0] * (len2 + 1) for _ in range(len1 + 1)]
+    for i in range(len1 + 1):
+        table[i][0] = i
+    for j in range(len2 + 1):
+        table[0][j] = j
+    return table
 
 
 def levenshtein_distance(w1: str, w2: str) -> int:
     len1 = len(w1)
     len2 = len(w2)
 
-    table = [[0] * (len2 + 1) for _ in range(len1 + 1)]
-    for i in range(len1 + 1):
-        table[i][0] = i
-    for j in range(len2 + 1):
-        table[0][j] = j
+    table = createCalculationsTable(len1, len2)
 
     for i in range(1, len1 + 1):
         for j in range(1, len2 + 1):
@@ -68,11 +73,7 @@ def indel_distance(w1, w2):
     len1 = len(w1)
     len2 = len(w2)
 
-    table = [[0] * (len2 + 1) for _ in range(len1 + 1)]
-    for i in range(len1 + 1):
-        table[i][0] = i
-    for j in range(len2 + 1):
-        table[0][j] = j
+    table = createCalculationsTable(len1, len2)
 
     for i in range(1, len1 + 1):
         for j in range(1, len2 + 1):
@@ -89,11 +90,7 @@ def improved_levenshtein_distance(w1, w2):
     len1 = len(w1)
     len2 = len(w2)
 
-    table = [[0] * (len2 + 1) for _ in range(len1 + 1)]
-    for i in range(len1 + 1):
-        table[i][0] = i
-    for j in range(len2 + 1):
-        table[0][j] = j
+    table = createCalculationsTable(len1, len2)
 
     for i in range(1, len1 + 1):
         for j in range(1, len2 + 1):
@@ -124,52 +121,48 @@ def correct_word(w):
             if word == w:
                 return word
     costsL = []
-    costsH = []
-    costsI = []
+    # costsH = []
+    # costsI = []
     with open("words_alpha.txt", "r") as f:
         for word in f:
             word = word.strip()
             costsL.append((word, improved_levenshtein_distance(w, word)))
-            if len(word) == len(w):
-                costsH.append((word, improved_hamming_distance(w, word)))
-            costsI.append((word, indel_distance(w, word)))
+            # if len(word) == len(w):
+            #     costsH.append((word, improved_hamming_distance(w, word)))
+            # costsI.append((word, indel_distance(w, word)))
 
-    bestL = min(costsL, key=lambda x: x[1])
-    bestH = min(costsH, key=lambda x: x[1]) if costsH else (None, float('inf'))
-    bestI = min(costsI, key=lambda x: x[1])
+    costsL.sort(key=lambda x: x[1])
+    # costsH.sort(key=lambda x: x[1])
+    # costsI.sort(key=lambda x: x[1])
 
-    best = min([bestL, bestH, bestI], key=lambda x: x[1])
-    return best[0]
+    # print((costsL[0], costsH[0], costsI[0]))
+    return costsL[0][0]
 
 
-def improved_correct_word(w):
-    THRESHOLD = 5
+def improved_correct_word(w, dictionary):
     with open("words_alpha.txt", "r") as f:
         for line in f:
             word = line.strip()
             if word == w:
                 return word
-    costsL = []
-    costsH = []
-    costsI = []
 
     wLen = len(w)
-    with open("words_alpha.txt", "r") as f:
-        for word in f:
-            word = word.strip()
-            if abs(wLen-len(word)) > THRESHOLD:
-                continue
-            costsL.append((word, improved_levenshtein_distance(w, word)))
-            if len(word) == len(w):
-                costsH.append((word, improved_hamming_distance(w, word)))
-            costsI.append((word, indel_distance(w, word)))
+    correctedWord = w
+    correctedWordCost = 100000
 
-    bestL = min(costsL, key=lambda x: x[1])
-    bestH = min(costsH, key=lambda x: x[1]) if costsH else (None, float('inf'))
-    bestI = min(costsI, key=lambda x: x[1])
+    if (wLen in dictionary):
+        for word in dictionary[wLen]:
+            if word == w:
+                return word
+            dist = improved_hamming_distance(w, word)
+            if dist <= 1 and dist < correctedWordCost:
+                correctedWord = word
+                correctedWordCost = dist
 
-    best = min([bestL, bestH, bestI], key=lambda x: x[1])
-    return best[0]
+    if correctedWord == w:
+        return correct_word(w)
+
+    return correctedWord
 
 
 def correct_text():
@@ -179,5 +172,30 @@ def correct_text():
                 words = line.split(" ")
                 for word in words:
                     correctedWord = correct_word(word)
+                    correctedFile.write(correctedWord + " ")
+                correctedFile.write("\n")
+
+
+def createDictionary():
+    dictionary = {}
+    with open("words_alpha.txt", "r") as f:
+        for word in f:
+            word = word.strip()
+            wordLength = len(word)
+            if wordLength in dictionary:
+                dictionary[wordLength].append(word)
+            else:
+                dictionary[wordLength] = [word]
+    return dictionary
+
+
+def improved_correct_text():
+    dictionary = createDictionary()
+    with open("improved_corrected_text.txt", "w") as correctedFile:
+        with open("corrupted_text.txt", "r") as corruptedFile:
+            for line in corruptedFile:
+                words = line.split(" ")
+                for word in words:
+                    correctedWord = improved_correct_word(word, dictionary)
                     correctedFile.write(correctedWord + " ")
                 correctedFile.write("\n")
